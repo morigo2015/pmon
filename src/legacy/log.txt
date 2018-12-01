@@ -1,0 +1,2 @@
+info    : 2018-10-07 14:01:41.31 input stream rtsp://admin:F112358f_bell@192.168.1.165:554/Streaming/Channels/101 opened, async mode = True
+info    : 2018-10-07 14:06:38.92 input stream rtsp://admin:F112358f_bell@192.168.1.165:554/Streaming/Channels/101 opened, async mode = True
