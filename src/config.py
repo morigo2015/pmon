@@ -3,7 +3,7 @@
 import os
 import cv2
 
-work_dir = os.environ['HOME'] + '/' + 'mypy/vint/'
+work_dir = os.environ['HOME'] + '/' + 'mypy/pmon/'
 os.chdir(work_dir)
 
 _folders = {
