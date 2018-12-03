@@ -27,7 +27,7 @@ cfg = {
     'cam_monitor_frame_div': 10, # how many frames between updates of cam status on monitor
 
     # write frames:
-    'write_frames': True,  # write input frames to video files (separated by cam)
+    'write_frames': False,  # write input frames to video files (separated by cam)
     'write_frames_folder': _folders['videos'],
     'write_frames_fps': 3.0,  # fps for videofiles that save cam frame stream
     'write_frames_four_cc': cv2.VideoWriter_fourcc(*'XVID'),  # four_cc for videofiles
