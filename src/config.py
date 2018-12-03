@@ -37,3 +37,4 @@ cfg = {
     'camera_info_file': _folders['data'] + 'cameras_info.csv',
     'camera_frames_que_size': 10,  # frames queue size for each cam
 }
+
