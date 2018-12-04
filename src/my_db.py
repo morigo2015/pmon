@@ -7,18 +7,24 @@ import mysql.connector
 
 
 class MyDb:
+    db_param = {  # can be changed before instantiating
+        'host': 'localhost',
+        'user': 'root', 'passwd': '121212',
+        'database': 'mysql'
+    }
 
-    def __init__(self, db_param={'host': 'localhost', 'user': 'root', 'passwd': '121212', 'database': 'mysql'}):
-        self.db_param = db_param
+    def __init__(self):
+        self.db_param = MyDb.db_param
         self.mydb = mysql.connector.connect(
-            host=db_param['host'], user=db_param['user'], passwd=db_param['passwd'], database=db_param['database']
+            host=self.db_param['host'], user=self.db_param['user'], passwd=self.db_param['passwd'],
+            database=self.db_param['database']
             , autocommit=True
             , charset='latin1'
             # ,use_unicode=True
             # ,buffered=True
         )
         self.curs = self.mydb.cursor()
-        print(f"connected to {db_param['user']}:{db_param['database']} host={db_param['host']}")
+        print(f"connected to {self.db_param['user']}:{self.db_param['database']} host={self.db_param['host']}")
 
     def __del__(self):
         # self.curs.close()
@@ -35,7 +41,7 @@ class MyDb:
         # if len(self.curs):
         result_str = [s for s in self.curs]
         if show:
-            print("result:",end='')
+            print("result:", end='')
             for s in result_str:
                 print(s)
             print("\n")
@@ -61,9 +67,10 @@ class MyDb:
         return cls.datetime_2_sql(datetime.datetime.now())
 
     @staticmethod
-    def bool_2_sql(val:bool) -> str:
+    def bool_2_sql(val: bool) -> str:
         """ python bool -> sql bool """
         return str(val).upper()
+
 
 if __name__ == '__main__':
     img_fname = '/home/im/mypy/Homography/book.jpg'

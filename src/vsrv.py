@@ -122,12 +122,12 @@ class _CamMonitor:
     x_p, y_p = None, None  # cursor parking point outside overall message area
 
     @classmethod
-    def init(cls, left_top_corner_xy=(20, 1)):
+    def init(cls, lt_corner_xy=(20, 1)):
         if not cfg['cam_monitor']:
             return
         cls.clear_screen()
-        cls.x0, cls.y0 = left_top_corner_xy[0], left_top_corner_xy[1]
-        cls.x_p, cls.y_p = left_top_corner_xy[0], cls.y0 + 2 + len(Camera.cam_list)
+        cls.x0, cls.y0 = lt_corner_xy[0], lt_corner_xy[1]
+        cls.x_p, cls.y_p = lt_corner_xy[0], cls.y0 + 2 + len(Camera.cam_list)
 
     @classmethod
     def msg(cls, cam: Camera, message: str):
