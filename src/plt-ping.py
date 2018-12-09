@@ -6,20 +6,21 @@ import plotly.graph_objs as go
 import plotly.plotly as py
 
 from my_db import MyDb
+import utils
 
 chart_name = "ping"
 
 host_info = {
-    "www.ua": ["www.ua", 0],
-    "192.168.1.1": ["wifi-router", 1],
-    "192.168.1.64": ["Cam:old_hik", 2],
-    "192.168.1.70": ["Cam:bullet", 3],
-    "192.168.1.165": ["Cam:door_bell", 4],
+    "www.ua": ["External", 4],
+    "192.168.1.1": ["Router", 3],
+    "192.168.1.64": ["old_hik", 2],
+    "192.168.1.70": ["bullet", 1],
+    "192.168.1.165": ["door_bell", 0],
 }
 
 
 # noinspection PyUnresolvedReferences
-class PltPing:
+class PltPingNotUpdatable:
     """
     plot on plot.ly incrementally: init/update chart
     """
@@ -39,8 +40,17 @@ class PltPing:
         # del df['time']
         df.index = df.index.floor('1T')  # truncate to minutes
 
+        # hosts --> columns
         df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]
-        df[df > 8.] = 8.  # cut peaks
+
+        # cut peaks
+        df[df > 8.] = 8.
+
+        # sort columns by seqn from host_info
+        df.rename(lambda s: f"{host_info[s][1]:02d}.{s}", axis="columns", inplace=True)  # host -> <seqn>.host
+        df.sort_index(axis=1, inplace=True)  # sort by seqn
+        df.rename(lambda s: host_info[s[3:]][0], axis="columns", inplace=True)  # <seqn>.host -> host_name
+
         return df
 
     @classmethod
@@ -49,7 +59,7 @@ class PltPing:
             go.Heatmap(
                 z=df.T.values.tolist(),
                 x=df.index.tolist(),
-                y=[host_info[host][0] for host in df.columns],
+                y=df.columns,
                 colorscale='Viridis',
             )
         ]
@@ -61,7 +71,7 @@ class PltPing:
         fig = go.Figure(data=data, layout=layout)
         return fig
 
-    def start(self):
+    def draw(self):
         """ overwrite chart based on history
         """
         df = self._get_ping_history()
@@ -69,10 +79,12 @@ class PltPing:
         fig = self._create_fig(df_p)
         r = py.iplot(fig, filename=chart_name, fileopt='overwrite')
         print(f"plot created at {r.resource}.")
+        globals()['df'] = df  # to check and play in console
+        globals()['d'] = df_p
 
 
 # noinspection PyUnresolvedReferences
-class PltPingUpdatable(PltPing):
+class PltPing(PltPingNotUpdatable):
     def __init__(self):
         super().__init__()
         self._last_timestamp: datetime.datetime = None  # last timestamp been sent to chart server
@@ -96,6 +108,10 @@ class PltPingUpdatable(PltPing):
         self._update_last_timestamp(df)
         return df
 
+    def start(self):
+        """ overwrite chart based on all previous history """
+        super().draw()
+
     def update(self):
         """ update chart based on last data (which have been inserted after last update)
         """
@@ -109,10 +125,10 @@ class PltPingUpdatable(PltPing):
 
 if __name__ == "__main__":
     # plt = PltPing()
-    plt = PltPingUpdatable()
+    plt = PltPing()
     plt.start()
 
-    iter_numb = 8
+    iter_numb = 0
     for iter_ in range(iter_numb):
         print(f"iter={iter_}/{iter_numb}")
         time.sleep(100)
