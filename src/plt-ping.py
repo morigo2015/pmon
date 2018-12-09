@@ -1,12 +1,9 @@
-from typing import List, Dict
 import datetime
 import time
 
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly.plotly as py
 import plotly.graph_objs as go
+import plotly.plotly as py
 
 from my_db import MyDb
 
@@ -21,6 +18,7 @@ host_info = {
 }
 
 
+# noinspection PyUnresolvedReferences
 class PltPing:
     """
     plot on plot.ly incrementally: init/update chart
@@ -73,11 +71,11 @@ class PltPing:
         print(f"plot created at {r.resource}.")
 
 
+# noinspection PyUnresolvedReferences
 class PltPingUpdatable(PltPing):
     def __init__(self):
         super().__init__()
         self._last_timestamp: datetime.datetime = None  # last timestamp been sent to chart server
-        self.rows_last_update = None
 
     def _update_last_timestamp(self, df: pd.core.frame.DataFrame):
         t = df[-1:]['time']
@@ -96,7 +94,6 @@ class PltPingUpdatable(PltPing):
         # print('query: ', query)
         df = pd.read_sql(query, self.db.mydb)
         self._update_last_timestamp(df)
-        self.rows_last_update = len(df)
         return df
 
     def update(self):
@@ -115,7 +112,7 @@ if __name__ == "__main__":
     plt = PltPingUpdatable()
     plt.start()
 
-    iter_numb=8
+    iter_numb = 8
     for iter_ in range(iter_numb):
         print(f"iter={iter_}/{iter_numb}")
         time.sleep(100)
