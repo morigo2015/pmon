@@ -4,8 +4,11 @@ import subprocess
 import datetime
 import time
 
+# import cv2
+
 from my_db import MyDb
 from interv_timer import IntervTimer
+
 
 class DbPing(MyDb):
     """ actions with ping table in MySql """
@@ -91,7 +94,7 @@ def main():
     db = DbPing()
     db.create_table(show=False)
     print(f" There are {db.count_ping_items()} items in ping table")
-    it = IntervTimer(sleep_interv_sec) # interval timer to keep interval between awakes regardless of delays
+    it = IntervTimer(sleep_interv_sec)  # interval timer to keep interval between awakes regardless of delays
     print(f"{'time':^20s} : {'host':^15s} :"
           f"{'OK'} :{'loss(%)':5s}: {'avg':^5s}")
     while True:
