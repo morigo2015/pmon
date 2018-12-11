@@ -1,6 +1,7 @@
 import datetime
 import time
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.plotly as py
@@ -40,8 +41,13 @@ class PltPingNotUpdatable:
         # del df['time']
         df.index = df.index.floor('1T')  # truncate to minutes
 
+        # avg_rtt -> category
+        # df['rcat'] = pd.cut(df['avg_rtt'].astype(int), bins=[-np.inf, -1, 4, 8, np.inf])
+        # df['rcat'].cat.categories = ["disconnect", "good", "moderate", "poor"]
+        # df['rcat'] = df['rcat'].cat.reorder_categories(['good','moderate','poor','disconnect'])
+
         # hosts --> columns
-        df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]
+        df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
 
         # cut peaks
         df[df > 8.] = 8.
@@ -51,7 +57,14 @@ class PltPingNotUpdatable:
         df.sort_index(axis=1, inplace=True)  # sort by seqn
         df.rename(lambda s: host_info[s[3:]][0], axis="columns", inplace=True)  # <seqn>.host -> host_name
 
-        return df
+        # dict_cat={}
+        # for c in df.columns:
+        #     s = pd.cut(pd.Series(df[c],index=df.index), bins=[-np.inf, -1.0, 4.0, 8.0, np.inf])
+        #     s.cat.categories = ["disconnect", "good", "moderate", "poor"]
+        #     s.cat.reorder_categories(['good','moderate','poor','disconnect'])
+        #     dict_cat[c] = s
+        # df = pd.DataFrame(data=dict_cat,index=df.index)
+        return df # df
 
     @classmethod
     def _create_fig(cls, df):
@@ -77,10 +90,10 @@ class PltPingNotUpdatable:
         df = self._get_ping_history()
         df_p = self._prepare_data(df)
         fig = self._create_fig(df_p)
-        r = py.iplot(fig, filename=chart_name, fileopt='overwrite')
-        print(f"plot created at {r.resource}.")
         globals()['df'] = df  # to check and play in console
         globals()['d'] = df_p
+        r = py.iplot(fig, filename=chart_name, fileopt='overwrite')
+        print(f"plot created at {r.resource}.")
 
 
 # noinspection PyUnresolvedReferences

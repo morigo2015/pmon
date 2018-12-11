@@ -25,7 +25,7 @@ class Frame:
         self.timestamp: str = timestamp
         self.image: np.ndarray = image
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Frame({self.cam_id},{self.cam_name},{self.timestamp})"
 
 
@@ -35,7 +35,7 @@ class _CamWorker(threading.Thread):
     def __init__(self, cam: Camera):
         super().__init__(name="_worker_" + cam.cam_name)
         self.cam: Camera = cam
-        self.frames_cnt = 0  # frames received from cam (for monitoring)
+        self.frames_cnt: int = 0  # frames received from cam (for monitoring)
 
     def run(self):
         """ run endless: take image, create frame, put in the queue """
@@ -118,11 +118,13 @@ class _FrameWriter:
 class _CamMonitor:
     """ display current state and activity of the cams """
 
-    x0, y0 = None, None  # overall message area left-up corner
-    x_p, y_p = None, None  # cursor parking point outside overall message area
+    x0: int = None
+    y0: int = None  # overall message area left-up corner
+    x_p: int = None
+    y_p: int = None  # cursor parking point outside overall message area
 
     @classmethod
-    def init(cls, lt_corner_xy=(20, 1)):
+    def init(cls, lt_corner_xy:Tuple[int,int]=(20, 1)):
         if not cfg['cam_monitor']:
             return
         cls.clear_screen()
@@ -141,7 +143,7 @@ class _CamMonitor:
         cls.set_cursor_to(cls.x_p, cls.y_p)
 
     @staticmethod
-    def set_cursor_to(x, y):
+    def set_cursor_to(x:int, y:int):
         print(f"\033[s\033[{y};{x}f", end='')
 
     @staticmethod

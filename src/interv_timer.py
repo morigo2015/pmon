@@ -1,3 +1,5 @@
+""" interval timer
+"""
 import time
 
 

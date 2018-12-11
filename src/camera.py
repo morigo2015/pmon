@@ -25,10 +25,10 @@ class Camera:
         self._handle: cv2.VideoCapture = None
         self.reopen_attempts_cnt: int = 0 # attempts to reopen after error
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Cam({self.cam_id},{self.cam_name})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
     def open(self) -> bool:
@@ -47,7 +47,7 @@ class Camera:
         self._handle.release()
         self._handle = None
 
-    def reopen(self,timeout=5):
+    def reopen(self,timeout: int =5):
         """ try to reopen video stream after error """
         self.close()
         time.sleep(timeout)
