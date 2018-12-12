@@ -3,6 +3,7 @@
 import subprocess
 import datetime
 import time
+from typing import List, Dict, Union, Any
 
 # import cv2
 
@@ -39,7 +40,7 @@ class DbPing(MyDb):
         res = self.exec(query, show=False)
         return int(res[0][0])  # there is 1-line/1-column in res
 
-    def insert_ping_item(self, ping_res, show=False):
+    def insert_ping_item(self, ping_res: Dict[str, Any], show=False):
         query = f"""
             insert into ping values(
                 '{ping_res['host']}', '{ping_res['time']}', {self.bool_2_sql(ping_res['OK'])},
@@ -50,8 +51,6 @@ class DbPing(MyDb):
         # print(query)
         self.exec(query, show=show)
 
-
-import time
 
 hosts = {
     'external': 'www.ua',
