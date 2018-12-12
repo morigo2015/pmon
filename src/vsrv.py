@@ -26,37 +26,37 @@ class Frame:
         self.image: np.ndarray = image
 
     def __str__(self) -> str:
-        return f"Frame({self.cam_id},{self.cam_name},{self.timestamp})"
+        return f'Frame({self.cam_id},{self.cam_name},{self.timestamp})'
 
 
 class _CamWorker(threading.Thread):
     """ one thread per each cam """
 
     def __init__(self, cam: Camera):
-        super().__init__(name="_worker_" + cam.cam_name)
+        super().__init__(name='_worker_' + cam.cam_name)
         self.cam: Camera = cam
         self.frames_cnt: int = 0  # frames received from cam (for monitoring)
 
     def run(self):
         """ run endless: take image, create frame, put in the queue """
-        _CamMonitor.msg(self.cam, f"waiting for connect ...")
+        _CamMonitor.msg(self.cam, f'waiting for connect ...')
         self.cam.open()
-        _CamMonitor.msg(self.cam, "connected")
-        logging.info(f"{self.cam} connected")
+        _CamMonitor.msg(self.cam, 'connected')
+        logging.info(f'{self.cam} connected')
         while not _stop_flag:
             if not _frames_queue.full():
                 self.cam.get_frame()
                 if self.cam.read_ok:
                     frame = Frame(self.cam.cam_id, self.cam.image,
-                                  datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S:%f"))
+                                  datetime.datetime.now().strftime('%y-%m-%d_%H:%M:%S:%f'))
                     _frames_queue.put(frame)
                     self.frames_cnt += 1
                     if self.frames_cnt % cfg['cam_monitor_frame_div'] == 0:
-                        _CamMonitor.msg(self.cam, f"frames processed: {self.frames_cnt}")
+                        _CamMonitor.msg(self.cam, f'frames processed: {self.frames_cnt}')
                     logging.debug(f'Put {frame}. Quesize={_frames_queue.qsize()}')
                 else:  # read error
-                    logging.warning(f"Read error in {self.cam}")
-                    _CamMonitor.msg(self.cam, f"Error. Failed attempts to reopen: {self.cam.reopen_attempts_cnt}")
+                    logging.warning(f'Read error in {self.cam}')
+                    _CamMonitor.msg(self.cam, f'Error. Failed attempts to reopen: {self.cam.reopen_attempts_cnt}')
                     self.cam.reopen()
                     continue
 
@@ -92,11 +92,11 @@ class _FrameWriter:
             return cls._handles[frame.cam_id]
         folder = cfg['write_frames_folder']
         os.makedirs(folder, exist_ok=True)
-        file_name = f"{folder}{frame.cam_name}{cfg['write_frames_suffix']}"
+        file_name = f'{folder}{frame.cam_name}{cfg["write_frames_suffix"]}'
         shape = (frame.image.shape[1], frame.image.shape[0])
         fh = cv2.VideoWriter(file_name, cfg['write_frames_four_cc'], cfg['write_frames_fps'], shape)
         cls._handles[frame.cam_id] = fh
-        logging.debug(f"Video file {file_name} created: shape={shape}, fps={cfg['write_frames_fps']}")
+        logging.debug(f'Video file {file_name} created: shape={shape}, fps={cfg["write_frames_fps"]}')
         return fh
 
     @classmethod
@@ -138,17 +138,17 @@ class _CamMonitor:
         # print message:
         y = cls.y0 + cam.cam_id
         cls.set_cursor_to(cls.x0, y)
-        print(f"{f'{cam}':.<20s}: {message:<45s}")
+        print(f'{f"{cam}":.<20s}: {message:<45s}')
         # park cursor
         cls.set_cursor_to(cls.x_p, cls.y_p)
 
     @staticmethod
     def set_cursor_to(x:int, y:int):
-        print(f"\033[s\033[{y};{x}f", end='')
+        print(f'\033[s\033[{y};{x}f', end='')
 
     @staticmethod
     def clear_screen():
-        print(f"\033[2J", end='')
+        print(f'\033[2J', end='')
 
 
 # vserv own functions:
@@ -163,14 +163,14 @@ def _show_frame(frame: Frame):
 
 
 def _wait_workers_to_stop():
-    logging.debug("waiting cam workers to stop:")
+    logging.debug('waiting cam workers to stop:')
     while True:
         time.sleep(1)
-        workers_left = len([t.name for t in threading.enumerate() if t.name.startswith("_worker_")])
-        logging.debug(f"{workers_left} workers left ...")
+        workers_left = len([t.name for t in threading.enumerate() if t.name.startswith('_worker_')])
+        logging.debug(f'{workers_left} workers left ...')
         if not workers_left:
             break
-    logging.debug("all workers stopped")
+    logging.debug('all workers stopped')
 
 
 def _set_server_logging():
@@ -185,7 +185,7 @@ def _set_server_logging():
         log_config['filename'] = cfg['log_file']
         log_config['filemode'] = cfg['log_file_mode']
     logging.basicConfig(**log_config)
-    logging.debug(f"logging init: level={log_level} log_file={cfg['log_file']}")
+    logging.debug(f'logging init: level={log_level} log_file={cfg["log_file"]}')
 
 
 def stop_vserv():
@@ -222,5 +222,5 @@ def _main():
     run_server()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     _main()

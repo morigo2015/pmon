@@ -10,11 +10,11 @@ def save_to_globals(**kwargs):
 
 if __name__ == "__main__":
 
-    def test_save_to_globals():
+    def _test_save_to_globals():
         class Tst:
             pass
         t=Tst()
         save_to_globals(t=t)
 
 
-    test_save_to_globals()
+    _test_save_to_globals()

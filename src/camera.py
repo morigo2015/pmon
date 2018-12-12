@@ -12,7 +12,7 @@ from config import cfg
 
 
 class Camera:
-    cam_list: List["Camera"] = []
+    cam_list: List['Camera'] = []
     cam_list_size: int = 0
 
     def __init__(self, cam_name: str, access_str: str):
@@ -26,7 +26,7 @@ class Camera:
         self.reopen_attempts_cnt: int = 0 # attempts to reopen after error
 
     def __str__(self) -> str:
-        return f"Cam({self.cam_id},{self.cam_name})"
+        return f'Cam({self.cam_id},{self.cam_name})'
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -77,11 +77,11 @@ class Camera:
     def check_cameras(cls):
         for cam in cls.cam_list:
             cam.open()
-            print(f"{cam} - {'OK' if cam._handle.isOpened() else 'BAD'}")
+            print(f'{cam} - {"OK" if cam._handle.isOpened() else "BAD"}')
             cam.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     Camera.init_cameras()
     Camera.print_cameras()
     # Camera.check_cameras()
