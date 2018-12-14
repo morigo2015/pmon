@@ -124,12 +124,12 @@ class _PltPingNotUpdatable:
     #     print(f'plot created at {r.resource}.')
 
     @classmethod
-    def _prepare_data(cls, df:PandasFrame):
+    def _prepare_data(cls, df: PandasFrame):
         df.index = df['time']
         df.index = df.index.floor('1T')  # truncate to minutes
 
-        df.avg_rtt.clip_upper(15.0,inplace=True)
-        df.loc[df.avg_rtt==-1,'avg_rtt']=np.nan
+        df.avg_rtt.clip_upper(15.0, inplace=True)
+        df.loc[df.avg_rtt == -1, 'avg_rtt'] = np.nan
 
         return df
 
@@ -138,7 +138,7 @@ class _PltPingNotUpdatable:
         df = self._prepare_data(df)
 
         s = df.loc[df.host == 'www.ua', 'avg_rtt']
-        globals()['s']=s
+        globals()['s'] = s
         s = s.tail(1000)
         s.plot()
         plt.show()
@@ -154,25 +154,41 @@ class _PltPingNotUpdatable:
         df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
         globals()['dfm'] = df.copy()
 
-        df = df.resample('1H').mean()
-        globals()['dfh']=df.copy()
+        # @formatter:off
+        scales = [
+            {'period': 'hour',  'resample_step': None, 'ticks': 60},
+            {'period': 'day',   'resample_step': '1H', 'ticks': 24},
+            {'period': 'month', 'resample_step': '1D', 'ticks': 30},
+        ]
+        # @formatter:on
 
-        df=df.tail(24)
-        fig,ax = plt.subplots()
-        # cmap=cm.get_cmap('viridis',128)
-        # cmap.set_under('black')
-        print(np.nanmin(df.T),np.nanmax(df.T))
-        heatmap = ax.pcolor(df.T, # cmap=cmap,  #plt.cm.viridis,
-                   vmin=np.nanmin(df.T),vmax=np.nanmax(df.T),
-                   edgecolors='k',linewidth=1) #   cm.get_cmap('viridis', 256))
-        ax.patch.set(color='red') # hatch='x',edgecolor='red',fill=True,
-        # heatmap.cmap.set_under('red')
-        bar = fig.colorbar(heatmap) # , extend='both')
-        plt.xticks(np.arange(0.5, len(df.index), 1), df.index, rotation='vertical') #,verticalalignment='bottom')
-        plt.yticks(np.arange(0.5, len(df.columns), 1), df.columns)
-        plt.savefig(fname='/home/im/mypy/pmon/tst/matpl-ping.png')
-        plt.show()
+        # fig = plt.figure(1) #, figsize=(9, 3))
 
+        for ind, sc in enumerate(scales):
+            # ax = plt.subplot(3, 1, ind + 1)
+            fig,ax = plt.subplots()
+            plt.title(sc['period'])
+            if sc['resample_step']:
+                df2 = df.resample(sc['resample_step']).mean()
+            else:
+                df2 = df.copy()
+            df2 = df2.tail(sc['ticks'])
+            globals()[f"df_{sc['period']}"] = df2.copy()
+
+            # fig, ax = plt.subplots()
+            # cmap=cm.get_cmap('viridis',128)
+            heatmap = ax.pcolor(df2.T,  # cmap=cmap,  #plt.cm.viridis,
+                                vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
+                                edgecolors='k', linewidth=1)  # cm.get_cmap('viridis', 256))
+            ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
+            # heatmap.cmap.set_under('red')
+            fig.colorbar(heatmap)  # , extend='both')
+
+            plt.xticks(np.arange(0.5, len(df2.index), 1), df2.index,
+                       rotation='vertical')  # ,verticalalignment='bottom')
+            plt.yticks(np.arange(0.5, len(df2.columns), 1), df2.columns)
+            plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
+            plt.show()
 
 
 # noinspection PyUnresolvedReferences
