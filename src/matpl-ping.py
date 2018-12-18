@@ -129,6 +129,50 @@ class PltPing:
             plt.show()
             globals()['a'] = ax
 
+    def draw_heat_losses(self):
+        df = self._get_ping_history()
+        df = self._prepare_data(df)
+        # self._set_grade(df) # avg_rtt --> grades
+
+        # @formatter:off
+        scales = [
+            {'period': 'hour',  'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
+            {'period': 'day',   'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
+            {'period': 'month', 'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
+        ]
+        # @formatter:on
+        for ind, sc in enumerate(scales):
+            df2 = df.resample(sc['resample_step']).mean() if sc['resample_step'] else df.copy()  # aggregate if need
+            df2 = df2.tail(sc['ticks'])  # cut data out of reporting period
+
+            globals()[f"df_{sc['period']}"] = df2.copy()
+
+            fig, ax = plt.subplots()
+            ax.set_title(f"Last {sc['period']}")
+            heatmap = ax.pcolor(df2.T, # cm.get_cmap('viridis', 256))
+                                cmap=LinearSegmentedColormap.from_list("", ["green", "olive", "darkkhaki", "orange"]),
+                                vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
+                                edgecolors='k', linewidth=1)
+            ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
+            fig.colorbar(heatmap)  # , extend='both')
+
+            # set x axis
+            ax.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
+            xformatter = lambda x, pos: f"{df2.index[np.clip(int(x), 0, len(df2.index) - 1)].strftime(sc['format'])}"
+            ax.xaxis.set_major_formatter(ticker.FuncFormatter(xformatter))
+            ax.tick_params(axis='x', labelrotation=45.)
+
+            # set y axis
+            ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
+            yformatter = lambda x, pos: f"{df2.columns[int(x)] if x < len(df2.columns) else '=No label='}"
+            ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
+
+            # show/save result
+            plt.tight_layout()
+            plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
+            plt.show()
+            globals()['a'] = ax
+
 
 if __name__ == '__main__':
     p = PltPing()

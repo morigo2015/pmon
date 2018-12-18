@@ -23,7 +23,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/plt-ping.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
+            <state relative-caret-position="-1236">
               <caret line="70" selection-start-line="70" selection-end-line="70" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
@@ -35,11 +35,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/matpl-ping.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="447">
-              <caret line="182" column="17" lean-forward="true" selection-start-line="182" selection-start-column="17" selection-end-line="182" selection-end-column="17" />
+            <state relative-caret-position="90">
+              <caret line="133" column="24" selection-start-line="133" selection-start-column="24" selection-end-line="133" selection-end-column="24" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <element signature="e#7771#9310#0" />
               </folding>
             </state>
           </provider>
@@ -127,6 +126,7 @@
       <find>&quot;</find>
       <find>pcolor</find>
       <find>color_scale</find>
+      <find>grade_info</find>
     </findStrings>
     <replaceStrings>
       <replace>'</replace>
@@ -377,12 +377,12 @@
     <configuration />
   </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
+    <task id="Default" summary="Default task">
       <changelist id="8887ae03-40c3-4fb6-989b-ff999bdc9585" name="Default Changelist" comment="" />
       <created>1543674248865</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1543674248865</updated>
+      <updated>1545085332764</updated>
       <workItem from="1543674252179" duration="702000" />
       <workItem from="1543715806709" duration="3834000" />
       <workItem from="1543856799767" duration="495000" />
@@ -397,7 +397,7 @@
       <workItem from="1544547634425" duration="15979000" />
       <workItem from="1544614995211" duration="8482000" />
       <workItem from="1544733370127" duration="47487000" />
-      <workItem from="1545078204676" duration="6019000" />
+      <workItem from="1545078204676" duration="6496000" />
     </task>
     <task id="LOCAL-00001" summary="config">
       <created>1543674780030</created>
@@ -476,11 +476,37 @@
       <option name="project" value="LOCAL" />
       <updated>1544826847375</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="heatmap">
+      <created>1545084872469</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1545084872469</updated>
+    </task>
+    <task active="true" id="LOCAL-00013" summary="Do Colormap the same for heatmaps of different periods">
+      <changelist id="8887ae03-40c3-4fb6-989b-ff999bdc9585" name="Default Changelist" comment="" />
+      <created>1545085312861</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1545085332765</updated>
+      <workItem from="1545085333001" duration="3550000" />
+    </task>
+    <task id="LOCAL-00014" summary="heatmap - small fixes">
+      <created>1545137296006</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1545137296006</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
+    <option name="clearContext" value="false" />
+    <option name="createChangelist" value="false" />
+    <option name="createBranch" value="false" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="157977000" />
+    <option name="totallyTimeSpent" value="162004000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -499,19 +525,19 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49880287" weight="0.48371336" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49880287" weight="0.12052117" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.30781758" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32899022" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49960095" weight="0.24918567" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="8" sideWeight="0.49960095" visible="true" weight="0.24918567" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5019952" side_tool="true" weight="0.28175896" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.9478827" />
       <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.4980048" weight="0.21172638" />
-      <window_info active="true" anchor="bottom" id="Inspection Results" order="13" sideWeight="0.49960095" visible="true" weight="0.1335505" />
+      <window_info anchor="bottom" id="Inspection Results" order="13" sideWeight="0.49960095" weight="0.1335505" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.24980047" />
@@ -581,7 +607,8 @@
     <MESSAGE value="host order and names in chart" />
     <MESSAGE value="plt-ping" />
     <MESSAGE value="heatmap" />
-    <option name="LAST_COMMIT_MESSAGE" value="heatmap" />
+    <MESSAGE value="heatmap - small fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="heatmap - small fixes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -715,16 +742,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/plt-ping.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="70" selection-start-line="70" selection-end-line="70" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/colors.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -779,13 +796,22 @@
       </provider>
       <provider editor-type-id="csv-text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/matpl-ping.py">
+    <entry file="file://$PROJECT_DIR$/src/plt-ping.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
-          <caret line="182" column="17" lean-forward="true" selection-start-line="182" selection-start-column="17" selection-end-line="182" selection-end-column="17" />
+        <state relative-caret-position="-1236">
+          <caret line="70" selection-start-line="70" selection-end-line="70" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <element signature="e#7771#9310#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/matpl-ping.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="133" column="24" selection-start-line="133" selection-start-column="24" selection-end-line="133" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
