@@ -46,6 +46,33 @@ def _set_grade(df: PandasFrame):
         df.loc[(gr['left'] < df.avg_rtt) & (df.avg_rtt <= gr['right']), 'grade'] = gr['color_scale'][0]
     print('grade: ', df['grade'].value_counts())
 
+def _prepare_data_avg_rtt(df: PandasFrame):
+    df.index = df['time']
+    df.index = df.index.floor('1T')  # truncate to minutes
+    # avg==-1 --> NaN
+    df.avg_rtt.clip_upper(15.0, inplace=True)
+    df.loc[df.avg_rtt == -1, 'avg_rtt'] = np.nan
+    # hosts --> columns
+    df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
+    # hosts --> host_names
+    df.columns = [host_info[d][0] for d in df.columns]
+    globals()['dfm'] = df.copy()
+    return df
+
+def _prepare_data_losses(df: PandasFrame):
+    df.index = df['time']
+    df.index = df.index.floor('1T')  # truncate to minutes
+
+    # hosts --> columns
+    globals()['d1']=df.copy()
+    df = df.groupby([df.index, 'host'])['ok'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
+    globals()['d2']=df.copy()
+
+    # hosts --> host_names
+    df.columns = [host_info[d][0] for d in df.columns]
+    globals()['dfm'] = df.copy()
+    return df
+
 
 # noinspection PyUnresolvedReferences
 class PltPing:
@@ -59,35 +86,22 @@ class PltPing:
     def _get_ping_history(self) -> PandasFrame:
         query = 'select * from ping order by time asc'
         df = pd.read_sql(query, self.db.mydb)
+        globals()['d_']=df.copy()
         return df
 
-    @classmethod
-    def _prepare_data(cls, df: PandasFrame):
-        df.index = df['time']
-        df.index = df.index.floor('1T')  # truncate to minutes
-        # avg==-1 --> NaN
-        df.avg_rtt.clip_upper(15.0, inplace=True)
-        df.loc[df.avg_rtt == -1, 'avg_rtt'] = np.nan
-        # hosts --> columns
-        df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
-        # hosts --> host_names
-        df.columns = [host_info[d][0] for d in df.columns]
-        globals()['dfm'] = df.copy()
-        return df
-
-    def draw_lines(self):
-        df = self._get_ping_history()
-        df = self._prepare_data(df)
-
-        s = df.loc[df.host == 'www.ua', 'avg_rtt']
-        globals()['s'] = s
-        s = s.tail(1000)
-        s.plot()
-        plt.show()
+    # def draw_lines(self):
+    #     df = self._get_ping_history()
+    #     df = self._prepare_data_avg_rtt(df)
+    #
+    #     s = df.loc[df.host == 'www.ua', 'avg_rtt']
+    #     globals()['s'] = s
+    #     s = s.tail(1000)
+    #     s.plot()
+    #     plt.show()
 
     def draw_heat(self):
         df = self._get_ping_history()
-        df = self._prepare_data(df)
+        df = _prepare_data_avg_rtt(df)
         # self._set_grade(df) # avg_rtt --> grades
 
         # @formatter:off
@@ -129,9 +143,12 @@ class PltPing:
             plt.show()
             globals()['a'] = ax
 
-    def draw_heat_losses(self):
+    def draw_heat_ok(self):
+        """ Build heatmap.
+        Indicator: bad pings % = count(ping<Thresh) / count(total pings)
+        """
         df = self._get_ping_history()
-        df = self._prepare_data(df)
+        df = _prepare_data_losses(df)
         # self._set_grade(df) # avg_rtt --> grades
 
         # @formatter:off
@@ -144,13 +161,13 @@ class PltPing:
         for ind, sc in enumerate(scales):
             df2 = df.resample(sc['resample_step']).mean() if sc['resample_step'] else df.copy()  # aggregate if need
             df2 = df2.tail(sc['ticks'])  # cut data out of reporting period
-
             globals()[f"df_{sc['period']}"] = df2.copy()
 
             fig, ax = plt.subplots()
+            color_list =  ["green", "olive", "darkkhaki", "orange", "red"][::-1]  # reverse
             ax.set_title(f"Last {sc['period']}")
             heatmap = ax.pcolor(df2.T, # cm.get_cmap('viridis', 256))
-                                cmap=LinearSegmentedColormap.from_list("", ["green", "olive", "darkkhaki", "orange"]),
+                                cmap=LinearSegmentedColormap.from_list("", color_list),
                                 vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
                                 edgecolors='k', linewidth=1)
             ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
@@ -176,4 +193,5 @@ class PltPing:
 
 if __name__ == '__main__':
     p = PltPing()
-    p.draw_heat()
+    #p.draw_heat()
+    p.draw_heat_ok()
