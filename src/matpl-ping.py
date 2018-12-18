@@ -143,7 +143,7 @@ class PltPing:
             plt.show()
             globals()['a'] = ax
 
-    def draw_heat_ok(self):
+    def draw_heat_ok_ping(self):
         """ Build heatmap.
         Indicator: bad pings % = count(ping<Thresh) / count(total pings)
         """
@@ -184,6 +184,8 @@ class PltPing:
             yformatter = lambda x, pos: f"{df2.columns[int(x)] if x < len(df2.columns) else '=No label='}"
             ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
 
+            #ping line
+
             # show/save result
             plt.tight_layout()
             plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
@@ -194,4 +196,4 @@ class PltPing:
 if __name__ == '__main__':
     p = PltPing()
     #p.draw_heat()
-    p.draw_heat_ok()
+    p.draw_heat_ok_ping()
