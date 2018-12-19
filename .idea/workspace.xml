@@ -4,7 +4,7 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8887ae03-40c3-4fb6-989b-ff999bdc9585" name="Default Changelist" comment="heatmap_ok">
+    <list default="true" id="8887ae03-40c3-4fb6-989b-ff999bdc9585" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/matpl-ping.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/matpl-ping.py" afterDir="false" />
     </list>
@@ -16,39 +16,19 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/pmon$plt_ping.coverage" NAME="plt-ping Coverage Results" MODIFIED="1544572683900" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/pmon$matpl_ping.coverage" NAME="matpl-ping Coverage Results" MODIFIED="1545160589656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/pmon$matpl_ping.coverage" NAME="matpl-ping Coverage Results" MODIFIED="1545255021666" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/plt-ping.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="70" selection-start-line="70" selection-end-line="70" />
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/matpl-ping.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="207" lean-forward="true" selection-start-line="207" selection-end-line="207" />
+            <state relative-caret-position="244">
+              <caret line="94" lean-forward="true" selection-start-line="94" selection-end-line="94" />
               <folding>
-                <element signature="e#0#15#0" expanded="true" />
+                <element signature="e#0#36#0" expanded="true" />
+                <element signature="e#5987#6973#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/pyplot.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="1061" column="4" selection-start-line="1061" selection-start-column="4" selection-end-line="1061" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -111,7 +91,6 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data/cameras_info.csv">
-          <provider editor-type-id="csv-text-editor" />
           <provider selected="true" editor-type-id="csv-table-editor">
             <state showInfoPanel="true" rowLines="1">
               <column index="0" width="67" />
@@ -119,6 +98,7 @@
               <column index="2" width="651" />
             </state>
           </provider>
+          <provider editor-type-id="csv-text-editor" />
         </entry>
       </file>
     </leaf>
@@ -170,28 +150,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="pmon" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pmon" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="pmon" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pmon" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="pmon" type="b2602c69:ProjectViewProjectNode" />
-              <item name="pmon" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="plt-ping.py" type="8704e2dd:PyFileNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scope">
         <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
           <expand>
@@ -203,6 +161,22 @@
               <item name="pmon" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
               <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
               <item name="src" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="pmon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="pmon" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="pmon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="pmon" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -500,7 +474,8 @@
       <option name="project" value="LOCAL" />
       <updated>1545085332765</updated>
       <workItem from="1545085333001" duration="19525000" />
-      <workItem from="1545173702242" duration="8492000" />
+      <workItem from="1545173702242" duration="30482000" />
+      <workItem from="1545251006650" duration="4208000" />
     </task>
     <task id="LOCAL-00014" summary="heatmap - small fixes">
       <created>1545137296006</created>
@@ -530,14 +505,21 @@
       <option name="project" value="LOCAL" />
       <updated>1545151088861</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="heatmap_ok">
+      <created>1545182713314</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1545182713314</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <option name="clearContext" value="false" />
     <option name="createChangelist" value="false" />
     <option name="createBranch" value="false" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="186471000" />
+    <option name="totallyTimeSpent" value="212669000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -552,13 +534,13 @@
     <frame x="67" y="25" width="1299" height="743" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11652035" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11811652" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49880287" weight="0.4723127" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.30781758" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.47394136" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32899022" />
@@ -567,13 +549,13 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5019952" side_tool="true" weight="0.28175896" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.9478827" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="12" sideWeight="0.4980048" visible="true" weight="0.2850163" />
-      <window_info anchor="bottom" id="Inspection Results" order="13" sideWeight="0.49960095" weight="0.6710098" />
+      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.4980048" weight="0.048859935" />
+      <window_info anchor="bottom" id="Inspection Results" order="13" sideWeight="0.49960095" weight="0.21498372" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.24980047" />
-      <window_info anchor="right" x="279" y="91" width="813" height="481" id="SciView" order="3" sideWeight="0.9357602" weight="0.802075" />
-      <window_info anchor="right" x="0" y="0" width="274" height="543" id="Documentation" order="4" sideWeight="0.06423983" side_tool="true" weight="0.802075" />
+      <window_info anchor="right" x="279" y="91" width="813" height="481" id="SciView" order="3" sideWeight="0.93237704" weight="0.802075" />
+      <window_info anchor="right" x="0" y="0" width="274" height="543" id="Documentation" order="4" sideWeight="0.06762295" side_tool="true" weight="0.802075" />
       <window_info anchor="right" id="Database" order="5" />
     </layout>
   </component>
@@ -650,6 +632,11 @@
           <url>file://$PROJECT_DIR$/src/plt-ping.py</url>
           <line>62</line>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/matpl-ping.py</url>
+          <line>105</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -798,13 +785,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/axis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="973" selection-start-line="973" selection-end-line="973" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/plt-ping.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="900">
@@ -812,6 +792,27 @@
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/pyplot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="1061" column="4" selection-start-line="1061" selection-start-column="4" selection-end-line="1061" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/dates.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="1096" selection-start-line="1096" selection-end-line="1096" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/axis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="973" selection-start-line="973" selection-end-line="973" />
         </state>
       </provider>
     </entry>
@@ -860,7 +861,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/data/cameras_info.csv">
-      <provider editor-type-id="csv-text-editor" />
       <provider selected="true" editor-type-id="csv-table-editor">
         <state showInfoPanel="true" rowLines="1">
           <column index="0" width="67" />
@@ -868,20 +868,22 @@
           <column index="2" width="651" />
         </state>
       </provider>
+      <provider editor-type-id="csv-text-editor" />
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/pyplot.py">
+    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="1061" column="4" selection-start-line="1061" selection-start-column="4" selection-end-line="1061" selection-end-column="4" />
+        <state relative-caret-position="82">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/matpl-ping.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="207" lean-forward="true" selection-start-line="207" selection-end-line="207" />
+        <state relative-caret-position="244">
+          <caret line="94" lean-forward="true" selection-start-line="94" selection-end-line="94" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#0#36#0" expanded="true" />
+            <element signature="e#5987#6973#0" />
           </folding>
         </state>
       </provider>

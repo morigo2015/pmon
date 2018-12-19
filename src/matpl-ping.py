@@ -1,17 +1,11 @@
-import datetime
-import time
-import sys
 from typing import List, Dict, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-from matplotlib import cm
 from matplotlib.colors import LinearSegmentedColormap
 
 import numpy as np
 import pandas as pd
-# import plotly.graph_objs as go
-# import plotly.plotly as py
 
 from my_db import MyDb
 
@@ -19,269 +13,140 @@ chart_name = 'ping'
 
 # @formatter:off
 host_info = {
-    'www.ua':        ['External',  4],
-    '192.168.1.1':   ['Router',    3],
-    '192.168.1.64':  ['old_hik',   2],
-    '192.168.1.70':  ['bullet',    1],
-    '192.168.1.165': ['door_bell', 0],
+    'www.ua':        ['External',  0],
+    '192.168.1.1':   ['Router',    1],
+    '192.168.1.64':  ['old_hik',   4],
+    '192.168.1.70':  ['bullet',    3],
+    '192.168.1.165': ['door_bell', 2],
 }
 # @formatter:on
 
 PandasFrame = pd.core.frame.DataFrame  # shortcut for annotations
-
-
-def _set_grade(df: PandasFrame):
-    """ avg_rtt --> grade
-    """
-    # @formatter:off
-    grade_info = [
-        {'level': 'disconnect', 'left': -np.inf, 'right': -1,     'color_scale': [0.0, 'red']},
-        {'level': 'poor',       'left': 7,       'right': np.inf, 'color_scale': [0.3, 'orange']},
-        {'level': 'moderate',   'left': 5,       'right': 7,      'color_scale': [0.6, 'rgb(235,206,135)']},
-        {'level': 'good',       'left': -1,      'right': 5,      'color_scale': [1.0, 'green']},
-    ]
-    # @formatter:on
-    df['grade'] = pd.Series(index=df.index)
-    for gr in grade_info:
-        df.loc[(gr['left'] < df.avg_rtt) & (df.avg_rtt <= gr['right']), 'grade'] = gr['color_scale'][0]
-    print('grade: ', df['grade'].value_counts())
-
-def _prepare_data_avg_rtt(df: PandasFrame):
-    df.index = df['time']
-    df.index = df.index.floor('1T')  # truncate to minutes
-    # avg==-1 --> NaN
-    df.avg_rtt.clip_upper(15.0, inplace=True)
-    df.loc[df.avg_rtt == -1, 'avg_rtt'] = np.nan
-    # hosts --> columns
-    df = df.groupby([df.index, 'host'])['avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
-    # hosts --> host_names
-    df.columns = [host_info[d][0] for d in df.columns]
-    globals()['dfm'] = df.copy()
-    return df
-
-def _prepare_data_ok(df: PandasFrame):
-    df.index = df['time']
-    df.index = df.index.floor('1T')  # truncate to minutes
-
-    # hosts --> columns
-    globals()['d1']=df.copy()
-    df = df.groupby([df.index, 'host'])['ok','avg_rtt'].agg('mean').unstack()  # minutes * hosts [avg_rtt]  avg_rtt
-    globals()['d2']=df.copy()
-    return df
-
 
 # noinspection PyUnresolvedReferences
 class PltPing:
     """
     plot charts for ping data
     """
-
     def __init__(self):
-        self.db = MyDb()  # connection to MySQL
+        self.db = None  # connection to MySQL
+        # SQL ->(get_ping_history)-> df_inp ->(prepare_data)-> df ->(scale_df)-> df2 ->(draw..)-> charts
+        self.df_inp: PandasFrame = None
+        self.df: PandasFrame = None
+        self.df2: PandasFrame = None
+        globals()['p'] = self
 
     def _get_ping_history(self) -> PandasFrame:
+        if not self.db:
+            self.db = MyDb()
         query = 'select * from ping order by time asc'
-        df = pd.read_sql(query, self.db.mydb)
-        globals()['d_']=df.copy()
-        return df
+        self.df_inp = pd.read_sql(query, self.db.mydb)
+        return
 
-    # def draw_lines(self):
-    #     df = self._get_ping_history()
-    #     df = self._prepare_data_avg_rtt(df)
-    #
-    #     s = df.loc[df.host == 'www.ua', 'avg_rtt']
-    #     globals()['s'] = s
-    #     s = s.tail(1000)
-    #     s.plot()
-    #     plt.show()
+    def load_data(self):
+        if not self.df_inp:
+            self._get_ping_history()
+        self.df = self.df_inp
 
-    def draw_heat(self):
-        df = self._get_ping_history()
-        df = _prepare_data_avg_rtt(df)
-        # self._set_grade(df) # avg_rtt --> grades
+        # avg==-1 --> there was no answer from ping
+        self.df.loc[self.df.avg_rtt == -1, 'avg_rtt'] = np.nan
+        # df.avg_rtt.clip_upper(15.0, inplace=True)
 
-        # @formatter:off
-        scales = [
-            {'period': 'hour',  'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
-            {'period': 'day',   'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
-            {'period': 'month', 'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
-        ]
-        # @formatter:on
-        for ind, sc in enumerate(scales):
-            df2 = df.resample(sc['resample_step']).mean() if sc['resample_step'] else df.copy()  # aggregate if need
-            df2 = df2.tail(sc['ticks'])  # cut data out of reporting period
+        self.df.index = self.df['time']
+        self.df.index = self.df.index.floor('1T')  # truncate to minutes
 
-            globals()[f"df_{sc['period']}"] = df2.copy()
+        # hosts --> columns
+        self.df = self.df.groupby([self.df.index, 'host'])['ok', 'avg_rtt'].agg('mean').unstack()
 
-            fig, ax = plt.subplots()
-            ax.set_title(f"Last {sc['period']}")
-            heatmap = ax.pcolor(df2.T, # cm.get_cmap('viridis', 256))
-                                cmap=LinearSegmentedColormap.from_list("", ["green", "olive", "darkkhaki", "orange"]),
-                                vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
-                                edgecolors='k', linewidth=1)
-            ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
-            fig.colorbar(heatmap)  # , extend='both')
+        # sort columns (hosts_names) by host_info[host_name].seqn
+        col = self.df.columns.tolist()
+        # multiindex: level 0 - vars(ok,avg_rtt) level 1 - hosts;  reverse - to set external and router on top of chart
+        col2 = sorted(col, key=lambda s: host_info[s[1]][1], reverse=True)
+        self.df = self.df[col2]
 
-            # set x axis
-            ax.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
-            xformatter = lambda x, pos: f"{df2.index[np.clip(int(x), 0, len(df2.index) - 1)].strftime(sc['format'])}"
-            ax.xaxis.set_major_formatter(ticker.FuncFormatter(xformatter))
-            ax.tick_params(axis='x', labelrotation=45.)
+        # host --> host_names
+        self.df = self.df.rename(columns={h:host_info[h][0] for h in host_info})
+        return
 
-            # set y axis
-            ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
-            yformatter = lambda x, pos: f"{df2.columns[int(x)] if x < len(df2.columns) else '=No label='}"
-            ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
+    # @formatter:off
+    scales = {
+        'hour':  {'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
+        'day':   {'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
+        'month': {'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
+    }
+    # @formatter:on
 
-            # show/save result
-            plt.tight_layout()
-            plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
-            plt.show()
-            globals()['a'] = ax
+    def scale_df(self, df: PandasFrame, period: str) -> PandasFrame:
+        if self.scales[period]['resample_step']:
+            self.df2 = df['ok'].resample(self.scales[period]['resample_step']).mean()
+        else:
+            self.df2 = df['ok'].copy()  # aggregate if need
+        self.df2 = self.df2.tail(self.scales[period]['ticks'])  # cut data out of reporting period
+        return self.df2
 
-    def draw_heat_ok_ping(self):
+    def draw_heat_ok(self):
         """ Build heatmap.
         Indicator: bad pings % = count(ping<Thresh) / count(total pings)
         """
-        df = self._get_ping_history()
-        df = _prepare_data_ok(df)
-        # self._set_grade(df) # avg_rtt --> grades
+        self.load_data()
+        for sc in self.scales:
+            print("Chart for ", sc)
+            self.df2 = self.scale_df(self.df, sc)
 
-        # @formatter:off
-        scales = [
-            {'period': 'hour',  'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
-            {'period': 'day',   'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
-            {'period': 'month', 'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
-        ]
-        # @formatter:on
-        for ind, sc in enumerate(scales):
-            print("Chart for ", sc["period"])
-            df2 = df['ok'].resample(sc['resample_step']).mean() if sc['resample_step'] else df['ok'].copy()  # aggregate if need
-            df2 = df2.tail(sc['ticks'])  # cut data out of reporting period
+            fig, ax = plt.subplots()  # , sharex=True)
+            ax.set_title(f"Last {sc}")
 
-            # hosts --> host_names
-            df2.columns = [host_info[d][0] for d in df2.columns]
-            globals()['d2']=df2.copy()
-
-            fig, (ax2,ax) = plt.subplots(nrows=2,ncols=1) # , sharex=True)
-            color_list =  ["green", "olive", "darkkhaki", "orange", "red"][::-1]  # reverse
-            heatmap = ax.pcolor(df2.T, # cm.get_cmap('viridis', 256))
+            color_list = ["green", "olive", "darkkhaki", "orange", "red"][::-1]  # reverse
+            heatmap = ax.pcolor(self.df2.T,  # cm.get_cmap('viridis', 256))
                                 cmap=LinearSegmentedColormap.from_list("", color_list),
-                                vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
+                                vmin=np.nanmin(self.df2.T), vmax=np.nanmax(self.df2.T),
                                 edgecolors='k', linewidth=1)
             # ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
-            # fig.colorbar(heatmap)  # , extend='both')
+
+            b=fig.colorbar(heatmap)  # , extend='both')
 
             # set x axis
-            ax.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.0)) # 0.5
-            xformatter = lambda x, pos: f"{df2.index[np.clip(int(x), 0, len(df2.index) - 1)].strftime(sc['format'])}"
+            ax.xaxis.set_major_locator(ticker.IndexLocator(self.scales[sc]['xloc_base'], 0.5))
+            xformatter = lambda x, pos: f"{self.df2.index[np.clip(int(x), 0, len(self.df2.index)-1)].strftime(self.scales[sc]['format'])}"
             ax.xaxis.set_major_formatter(ticker.FuncFormatter(xformatter))
-            ax.tick_params(axis='x', labelrotation=45.)
+            ax.tick_params(axis='x', labelrotation=90.)
 
             # set y axis
             ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
-            yformatter = lambda x, pos: f"{df2.columns[int(x)] if x < len(df2.columns) else '=No label='}"
+            yformatter = lambda x, pos: f"{self.df2.columns[int(x)] if x < len(self.df2.columns) else '=No label='}"
             ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
-
-            #ping line
-
-            #prepare data
-            df3 = df['avg_rtt'].resample(sc['resample_step']).mean() if sc['resample_step'] else df['avg_rtt'].copy()  # aggregate if need
-            df3 = df3.tail(sc['ticks'])  # cut data out of reporting period
-            df3[df3 == -1] = 100
-            # hosts --> host_names
-            df3.columns = [host_info[d][0] for d in df3.columns]
-            globals()['d3']=df3.copy()
-
-            f2,ax2 = plt.subplots()
-
-            # draw
-            # plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
-            ax2.plot(x=df3.index, y=df3['External']) # df3['External'].index,
-            # ax2.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
-            # ax2.xaxis.set_major_locator(ticker.AutoLocator())
-            # ax2.xaxis.set_major_formatter(ticker.StrMethodFormatter("{}"))
-            print(df3.index)
-            print(df3['External'])
-
-            ax2.grid(True)
-
-            ax2.set_title(f"Last {sc['period']}")
 
             # show/save result
             # fig.subplots_adjust(hspace=0)
             # plt.tight_layout()
-            plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
-            plt.show()
-            globals()['a'] = ax
-            globals()['a2'] = ax2
+            fig.savefig(fname=f"/home/im/mypy/pmon/tst/heat-{sc}.png")
+            fig.show()
 
-
-    def draw_heat_tst(self):
-        df = self._get_ping_history()
-        df = _prepare_data_ok(df)
-
-        # @formatter:off
-        scales = [
-            {'period': 'hour',  'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
-            # {'period': 'day',   'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
-            # {'period': 'month', 'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
-        ]
-        # @formatter:on
+    def draw_line_rtt(self):
+        # ping line
+        self.load_data()
         for ind, sc in enumerate(scales):
-            df2 = df['ok'].resample(sc['resample_step']).mean() if sc['resample_step'] else df['ok'].copy()  # aggregate if need
-            df2 = df2.tail(sc['ticks'])  # cut data out of reporting period
-
-            # hosts --> host_names
-            df2.columns = [host_info[d][0] for d in df2.columns]
-            globals()['d2']=df2.copy()
-            fig, (ax2,ax) = plt.subplots(nrows=2, sharex=True)
-            color_list =  ["green", "olive", "darkkhaki", "orange", "red"][::-1]  # reverse
-            heatmap = ax.pcolor(df2.T,
-                                cmap=LinearSegmentedColormap.from_list("", color_list),
-                                vmin=np.nanmin(df2.T), vmax=np.nanmax(df2.T),
-                                edgecolors='k', linewidth=1)
-            ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
-
-            # set x axis
-            ax.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
-            ax.xaxis.set_major_formatter(ticker.NullFormatter())
-
-            # set y axis
-            ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
-            yformatter = lambda x, pos: f"{df2.columns[int(x)] if x < len(df2.columns) else '=No label='}"
-            ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
-
-            #ping line
-
-            #prepare data
-            df3 = df['avg_rtt'].resample(sc['resample_step']).mean() if sc['resample_step'] else df['avg_rtt'].copy()  # aggregate if need
+            # prepare data
+            df3 = df['avg_rtt'].resample(sc['resample_step']).mean() if sc['resample_step'] else df[
+                'avg_rtt'].copy()  # aggregate if need
             df3 = df3.tail(sc['ticks'])  # cut data out of reporting period
+            df3[df3 == -1] = 100
+            # hosts --> host_names
             df3.columns = [host_info[d][0] for d in df3.columns]
-            globals()['d3']=df3.copy()
+            globals()['d3'] = df3.copy()
 
+            f2, ax_2 = plt.subplots()
 
-            # ax2.plot(df3.index, df3['External'])
-            # ax2.plot(2)
-            ax2.plot(y=df3['External'])
-            ax2.xaxis.set_major_formatter(ticker.NullFormatter())
+            # draw
+            # plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
+            ax_2.plot(x=df3.index, y=df3['External'])  # df3['External'].index,
+            # ax2.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
+            # ax2.xaxis.set_major_locator(ticker.AutoLocator())
+            # ax2.xaxis.set_major_formatter(ticker.StrMethodFormatter("{}"))
 
-            # ax2.grid(True)
-
-            # ax2.set_title(f"Last {sc['period']}")
-
-            # show/save result
-            plt.tight_layout()
-            plt.savefig(fname=f"/home/im/mypy/pmon/tst/matpl-{sc['period']}.png")
-            plt.show()
-            globals()['a'] = ax
-            globals()['a2'] = ax2
-            print('ax:',list(ax.xaxis.get_majorticklabels()))
-            print('ax2:',list(ax2.xaxis.get_majorticklabels()))
+            ax2.grid(True)
 
 
 if __name__ == '__main__':
     p = PltPing()
-    #p.draw_heat()
-    # p.draw_heat_ok_ping()
-    p.draw_heat_ok_ping()
+    p.draw_heat_ok()
