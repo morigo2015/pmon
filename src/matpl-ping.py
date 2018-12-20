@@ -1,42 +1,46 @@
-from typing import List, Dict, Tuple
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 from matplotlib.colors import LinearSegmentedColormap
-
 import numpy as np
 import pandas as pd
 
 from my_db import MyDb
 
-chart_name = 'ping'
+result_folder = '/home/im/mypy/pmon/tst'
 
 # @formatter:off
 host_info = {
     'www.ua':        ['External',  0],
     '192.168.1.1':   ['Router',    1],
-    '192.168.1.64':  ['old_hik',   4],
-    '192.168.1.70':  ['bullet',    3],
-    '192.168.1.165': ['door_bell', 2],
+    '192.168.1.64':  ['Camera:\nold_hik',   4],
+    '192.168.1.70':  ['Camera:\nbullet',    3],
+    '192.168.1.165': ['Camera:\ndoor_bell', 2],
 }
 # @formatter:on
 
+# noinspection PyUnresolvedReferences
 PandasFrame = pd.core.frame.DataFrame  # shortcut for annotations
 
-# noinspection PyUnresolvedReferences
+
 class PltPing:
     """
     plot charts for ping data
     """
+
     def __init__(self):
         self.db = None  # connection to MySQL
-        # SQL ->(get_ping_history)-> df_inp ->(prepare_data)-> df ->(scale_df)-> df2 ->(draw..)-> charts
+        # SQL ->(get_ping_history)-> df_inp ->(prepare_data)-> df ->(scale_df)-> df_scales ->(draw..)-> df_.. -> charts
         self.df_inp: PandasFrame = None
         self.df: PandasFrame = None
-        self.df2: PandasFrame = None
+        self.df_scaled: PandasFrame = None
+        self.df_ok: PandasFrame = None
+        self.df_ext_rtt: PandasFrame = None
         globals()['p'] = self
 
-    def _get_ping_history(self) -> PandasFrame:
+    def _get_ping_history(self):
+        """ SQL table 'ping' --> self.df_inp
+        """
         if not self.db:
             self.db = MyDb()
         query = 'select * from ping order by time asc'
@@ -44,9 +48,11 @@ class PltPing:
         return
 
     def load_data(self):
+        """ SQL table 'ping' --> self.dp_inp --> (data preparing) --> self.df
+        """
         if not self.df_inp:
             self._get_ping_history()
-        self.df = self.df_inp
+        self.df = self.df_inp.copy()
 
         # avg==-1 --> there was no answer from ping
         self.df.loc[self.df.avg_rtt == -1, 'avg_rtt'] = np.nan
@@ -65,88 +71,87 @@ class PltPing:
         self.df = self.df[col2]
 
         # host --> host_names
-        self.df = self.df.rename(columns={h:host_info[h][0] for h in host_info})
+        self.df = self.df.rename(columns={h: host_info[h][0] for h in host_info})
         return
 
     # @formatter:off
     scales = {
-        'hour':  {'resample_step': None, 'ticks': 60, 'format':"%H:%M",    'nticks':30, 'xloc_base':3.0},
-        'day':   {'resample_step': '1H', 'ticks': 24, 'format':"%Hh",      'nticks':30, 'xloc_base':1.0},
-        'month': {'resample_step': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'nticks':30, 'xloc_base':1.0},
+        'hour':     {'resample': '1T', 'ticks': 60, 'format':"%H:%M",    'x_base':3.0, 'units':'minutes'},
+        '24-hours': {'resample': '1H', 'ticks': 24, 'format':"%Hh",      'x_base':1.0, 'units':'hours'},
+        'month':    {'resample': '1D', 'ticks': 30, 'format':"%Y-%m-%d", 'x_base':1.0, 'units':'days'},
     }
     # @formatter:on
 
-    def scale_df(self, df: PandasFrame, period: str) -> PandasFrame:
-        if self.scales[period]['resample_step']:
-            self.df2 = df['ok'].resample(self.scales[period]['resample_step']).mean()
-        else:
-            self.df2 = df['ok'].copy()  # aggregate if need
-        self.df2 = self.df2.tail(self.scales[period]['ticks'])  # cut data out of reporting period
-        return self.df2
+    def scale_df(self, scale: str):
+        """ self.df --> (scaling) --> self.dp_scaled
+        """
+        self.df_scaled = self.df.loc[:, ['ok', 'avg_rtt']].resample(self.scales[scale]['resample']).mean()
+        self.df_scaled = self.df_scaled.tail(self.scales[scale]['ticks'])  # cut data out of reporting period
+        return
 
-    def draw_heat_ok(self):
+    def draw_heat_ok(self, fig, ax, scale: str):
+        self.df_ok = self.df_scaled['ok'].copy()
+
+        # draw
+        color_list = ["green", "olive", "darkkhaki", "orange", "red"][::-1]
+        heatmap = ax.pcolor(self.df_ok.T,  # cm.get_cmap('viridis', 256))
+                            cmap=LinearSegmentedColormap.from_list("", color_list),
+                            vmin=np.nanmin(self.df_ok.T), vmax=np.nanmax(self.df_ok.T),
+                            edgecolors='k', linewidth=1)
+        # ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
+        # fig.colorbar(heatmap, extend='both')  #
+
+        # set x axis
+        ax.xaxis.set_major_locator(ticker.IndexLocator(self.scales[scale]['x_base'], 0.0)) # 0.5
+        format = self.scales[scale]['format']
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(
+            lambda x, pos: f"{self.df_ok.index[np.clip(int(x), 0, len(self.df_ok.index) - 1)].strftime(format)}")
+        )
+        ax.tick_params(axis='x', labelrotation=90.)
+        ax.set_xlabel(self.scales[scale]['units'])
+
+        # set y axis (host_names ordered by host_info[seqn]
+        ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
+        yformatter = lambda x, pos: f"{self.df_ok.columns[int(x)] if x < len(self.df_ok.columns) else '=No label='}"
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
+
+    def draw_line_rtt(self, fig, ax, scale: str):
+        # tune data
+        self.df_ext_rtt = self.df_scaled['avg_rtt']['External'].copy()
+        self.df_ext_rtt.clip_upper(15, inplace=True)
+
+        # draw
+        # ax.plot(self.df_ext_rtt) #
+        self.df_ext_rtt.plot.line(ax=ax, grid=True, use_index=False, title=f"Network quality during last {scale}")
+
+        # set axes
+        ax.xaxis.set_major_locator(ticker.IndexLocator(self.scales[scale]['x_base'], 0.5))
+        ax.xaxis.set_major_formatter(ticker.NullFormatter())
+        ax.tick_params(axis='x', labelrotation=90.)
+
+        # set y axis
+        ax.set_ylabel('Average ping\nto outside (in ms)')
+
+    def draw_all_figs(self):
         """ Build heatmap.
         Indicator: bad pings % = count(ping<Thresh) / count(total pings)
         """
         self.load_data()
-        for sc in self.scales:
-            print("Chart for ", sc)
-            self.df2 = self.scale_df(self.df, sc)
-
-            fig, ax = plt.subplots()  # , sharex=True)
-            ax.set_title(f"Last {sc}")
-
-            color_list = ["green", "olive", "darkkhaki", "orange", "red"][::-1]  # reverse
-            heatmap = ax.pcolor(self.df2.T,  # cm.get_cmap('viridis', 256))
-                                cmap=LinearSegmentedColormap.from_list("", color_list),
-                                vmin=np.nanmin(self.df2.T), vmax=np.nanmax(self.df2.T),
-                                edgecolors='k', linewidth=1)
-            # ax.patch.set(color='red')  # hatch='x',edgecolor='red',fill=True,
-
-            b=fig.colorbar(heatmap)  # , extend='both')
-
-            # set x axis
-            ax.xaxis.set_major_locator(ticker.IndexLocator(self.scales[sc]['xloc_base'], 0.5))
-            xformatter = lambda x, pos: f"{self.df2.index[np.clip(int(x), 0, len(self.df2.index)-1)].strftime(self.scales[sc]['format'])}"
-            ax.xaxis.set_major_formatter(ticker.FuncFormatter(xformatter))
-            ax.tick_params(axis='x', labelrotation=90.)
-
-            # set y axis
-            ax.yaxis.set_major_locator(ticker.IndexLocator(1.0, 0.5))
-            yformatter = lambda x, pos: f"{self.df2.columns[int(x)] if x < len(self.df2.columns) else '=No label='}"
-            ax.yaxis.set_major_formatter(ticker.FuncFormatter(yformatter))
-
-            # show/save result
-            # fig.subplots_adjust(hspace=0)
+        for scale in self.scales:
+            self.scale_df(scale)
+            fig, (ax1, ax2) = plt.subplots(nrows=2)  # , sharex=True)
+            self.draw_line_rtt(fig, ax1, scale)
+            self.draw_heat_ok(fig, ax2, scale)
+            fig.subplots_adjust(hspace=0)
             # plt.tight_layout()
-            fig.savefig(fname=f"/home/im/mypy/pmon/tst/heat-{sc}.png")
+            fname = f"{result_folder}/{scale}.png"
+            fig.savefig(fname=fname)
+            print(f"Figure for {scale} is saved to {fname}")
             fig.show()
-
-    def draw_line_rtt(self):
-        # ping line
-        self.load_data()
-        for ind, sc in enumerate(scales):
-            # prepare data
-            df3 = df['avg_rtt'].resample(sc['resample_step']).mean() if sc['resample_step'] else df[
-                'avg_rtt'].copy()  # aggregate if need
-            df3 = df3.tail(sc['ticks'])  # cut data out of reporting period
-            df3[df3 == -1] = 100
-            # hosts --> host_names
-            df3.columns = [host_info[d][0] for d in df3.columns]
-            globals()['d3'] = df3.copy()
-
-            f2, ax_2 = plt.subplots()
-
-            # draw
-            # plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
-            ax_2.plot(x=df3.index, y=df3['External'])  # df3['External'].index,
-            # ax2.xaxis.set_major_locator(ticker.IndexLocator(sc['xloc_base'], 0.5))
-            # ax2.xaxis.set_major_locator(ticker.AutoLocator())
-            # ax2.xaxis.set_major_formatter(ticker.StrMethodFormatter("{}"))
-
-            ax2.grid(True)
+            plt.close()
+        print("\nLink to resulting chart (use right-click / OpenLink in Ubuntu terminal):\nfile:///home/im/mypy/pmon/tst/tst.html")
 
 
 if __name__ == '__main__':
     p = PltPing()
-    p.draw_heat_ok()
+    p.draw_all_figs()

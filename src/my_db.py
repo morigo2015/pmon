@@ -1,8 +1,6 @@
-import json
 import datetime
 
 import cv2
-import numpy as np
 import mysql.connector
 
 
